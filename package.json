@@ -1,0 +1,19 @@
+{
+  "name": "deplace",
+  "version": "1.0.0",
+  "description": "Mac terminal directory shortcut tool",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "author": "Jay Deaton",
+  "license": "ISC",
+  "bin": {
+    "deplace": "./index.js"
+  },
+  "dependencies": {
+    "cosmetic": "^1.1.1",
+    "emporium": "^1.4.0",
+    "termkit": "^1.1.0"
+  }
+}
