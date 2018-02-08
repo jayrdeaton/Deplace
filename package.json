@@ -1,11 +1,21 @@
 {
   "name": "deplace",
-  "version": "1.0.0",
-  "description": "Mac terminal directory shortcut tool",
+  "version": "1.0.1",
+  "description": "Mac terminal shortcut utility",
   "main": "index.js",
   "scripts": {
     "test": "node test.js"
   },
+  "keywords": [
+    "mac",
+    "osx",
+    "terminal",
+    "command",
+    "line",
+    "shortcut",
+    "cli",
+    "utility"
+  ],
   "author": "Jay Deaton",
   "license": "ISC",
   "bin": {
