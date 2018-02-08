@@ -10,7 +10,9 @@ module.exports = async (err, options) => {
     console.log(`${cosmetic.red('Error:')} ${err}`);
     return;
   };
-  let shortcuts = await Shortcut.fetch();
+  let query = {_sort: {name: 1}};
+  if (options.dir) query._sort = {dir: 1};
+  let shortcuts = await Shortcut.fetch(query);
   let dir;
   if (options.dir) {
     dir = await getDirectory(options.dir);
