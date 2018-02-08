@@ -1,4 +1,5 @@
 let cosmetic = require('cosmetic'),
+  fs = require('fs'),
   emporium = require('../emporium'),
   Shortcut = emporium.models.Shortcut,
   helpers = require('../helpers'),
