@@ -1,5 +1,5 @@
 let { basename, resolve } = require('path'),
-  { existsySync } = require('fs'),
+  { existsSync } = require('fs'),
   cosmetic = require('cosmetic'),
   { abbreviateDirectory, getDirectories } = require('../helpers'),
   emporium = require('../emporium'),
