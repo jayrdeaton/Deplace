@@ -1,52 +1,45 @@
-let cosmetic = require('cosmetic'),
-  helpers = require('../helpers'),
-  getDirectory = helpers.getDirectory,
-  abbreviateDirectory = helpers.abbreviateDirectory,
+let { basename, resolve } = require('path'),
+  { existsySync } = require('fs'),
+  cosmetic = require('cosmetic'),
+  { abbreviateDirectory, getDirectories } = require('../helpers'),
   emporium = require('../emporium'),
   Shortcut = emporium.models.Shortcut;
 
 module.exports = async (err, options) => {
-  if (err) {
-    console.log(`${cosmetic.red('Error:')} ${err}`);
-    return;
-  };
-  let dir;
-  if (options.dir) {
-    dir = await getDirectory(options.dir);
-    if (!dir) {
-      console.log(`${cosmetic.red('Error:')} ${cosmetic.cyan(options.dir)} is not an existing directory`);
-      return;
+  if (err) return console.log(`${cosmetic.red(err.name)} ${err.message}`);
+  let name;
+  let dirs = options.dirs || ['.'];
+  for (let dir of dirs) {
+    dir = resolve(dir).toLowerCase();
+    if (!existsSync(dir)) {
+      console.log(`${cosmetic.red('Error:')} ${cosmetic.cyan(abbreviateDirectory(dir))} is not an existing directory`)
+      continue;
     };
-  } else {
-    dir = process.cwd().toLowerCase();
+    if (options.all) {
+      for (dir of getDirectories(dir)) await add(dir, null, options.force);
+    } else {
+      if (options.name && dirs.length === 1) name = options.name.toLowerCase();
+      await add(dir, name, options.force);
+    };
   };
+  return;
+};
+
+let add = async (dir, name, force) => {
+  name = name || basename(dir);
+  if (name.includes('/') || name.startsWith('.')) return console.log(`${cosmetic.red('Error:')} Shortcut name cannot include ${cosmetic.cyan('.')} or ${cosmetic.cyan('/')}`);
+  if (name === 'add' || name === 'clean' || name === 'list' || name === 'remove') return console.log(`${cosmetic.red('Error:')} Shortcut name cannot be ${cosmetic.cyan('add')}, ${cosmetic.cyan('clean')}, ${cosmetic.cyan('list')}, or ${cosmetic.cyan('remove')}`);
   let existing = await Shortcut.fetchOne({ dir });
   if (existing) {
-    if (!options.force) {
-      console.log(`${cosmetic.red('Error:')} Shortcut already exists for ${cosmetic.cyan(abbreviateDirectory(dir))} named ${cosmetic.cyan(existing.name)}`);
-      return;
-    };
+    if (!force) return console.log(`${cosmetic.red('Error:')} Shortcut already exists for ${cosmetic.cyan(abbreviateDirectory(dir))} named ${cosmetic.cyan(existing.name)}`);
     await existing.remove();
-  } else if (existing) {
-
   };
-  let name;
-  if (options.name) {
-    name = options.name;
-  } else {
-    array = dir.split('/');
-    name = array[array.length - 1];
-  };
-  name = name.toLowerCase();
   existing = await Shortcut.fetchOne({ name });
   if (existing) {
-    if (!options.force) {
-      console.log(`${cosmetic.red('Error:')} Shortcut ${cosmetic.cyan(name)} already added for ${cosmetic.cyan(abbreviateDirectory(existing.dir))}`);
-      return;
-    };
+    if (!force) return console.log(`${cosmetic.red('Error:')} Shortcut ${cosmetic.cyan(name)} already added for ${cosmetic.cyan(abbreviateDirectory(existing.dir))}`);
     await existing.remove();
   };
   let shortcut = new Shortcut({name, dir});
   await shortcut.save();
-  console.log(`${cosmetic.green('Success:')} Added shortcut ${cosmetic.cyan(shortcut.name)} for ${cosmetic.cyan(abbreviateDirectory(shortcut.dir))}`);
+  return console.log(`${cosmetic.green('Added:')} Shortcut ${cosmetic.cyan(shortcut.name)} for ${cosmetic.cyan(abbreviateDirectory(shortcut.dir))}`);
 };

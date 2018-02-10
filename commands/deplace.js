@@ -5,7 +5,7 @@ let term = require('termkit'),
   list = require('./list'),
   remove = require('./remove');
 
-module.exports = term.command('Deplace', '[shortcut]')
+module.exports = term.command('Deplace', '[shortcuts...]')
   .version(process.env.npm_package_version)
   .description('A shortcut tool for your OSX terminal')
   .options([

@@ -1,27 +1,19 @@
 let cosmetic = require('cosmetic'),
+  { existsSync } = require('fs'),
+  { resolve } = require('path'),
   emporium = require('../emporium'),
   Shortcut = emporium.models.Shortcut,
-  helpers = require('../helpers'),
-  getDirectory = helpers.getDirectory,
-  abbreviateDirectory = helpers.abbreviateDirectory;
+  { abbreviateDirectory } = require('../helpers');
 
 module.exports = async (err, options) => {
-  if (err) {
-    console.log(`${cosmetic.red('Error:')} ${err}`);
-    return;
-  };
+  if (err) return console.log(`${cosmetic.red(err.name)} ${err.message}`);
   let query = {_sort: {name: 1}};
   if (options.dir) query._sort = {dir: 1};
   let shortcuts = await Shortcut.fetch(query);
   let dir;
   if (options.dir) {
-    dir = await getDirectory(options.dir);
-    for (let i = 0; i < shortcuts.length; i++) {
-      if (!shortcuts[i].dir.includes(dir)) {
-        shortcuts.shift(i);
-        i--;
-      };
-    };
+    dir = resolve(options.dir).toLowerCase();
+    shortcuts = shortcuts.filter(shortcut => shortcut.dir.includes(dir));
   };
   if (shortcuts.length === 0) {
     if (dir) {
@@ -37,7 +29,9 @@ module.exports = async (err, options) => {
   }
   let table = [];
   for (let shortcut of shortcuts) {
-    table.push([shortcut.name, abbreviateDirectory(shortcut.dir)]);
+    let broken = '';
+    if (!existsSync(shortcut.dir)) broken = ' Broken'
+    table.push([shortcut.name, abbreviateDirectory(shortcut.dir), cosmetic.red(broken)]);
   };
   let padding = {};
   for (let array of table) {
@@ -55,7 +49,7 @@ module.exports = async (err, options) => {
         while (string.length < padding[index]) string += ' ';
       };
       if (line) {
-        line += `    ${string}`;
+        line += `  ${string}`;
       } else {
         line = cosmetic.cyan(string);
       };
