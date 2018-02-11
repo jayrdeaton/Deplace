@@ -8,11 +8,12 @@ let { basename, resolve } = require('path'),
 module.exports = async (err, options) => {
   if (err) return console.log(`${cosmetic.red(err.name)} ${err.message}`);
   let name;
-  let dirs = options.dirs || ['.'];
+  let dirs = options.dirs;
+  if (dirs.length === 0) dirs.push('.');
   for (let dir of dirs) {
     dir = resolve(dir).toLowerCase();
     if (!existsSync(dir)) {
-      console.log(`${cosmetic.red('Error:')} ${cosmetic.cyan(abbreviateDirectory(dir))} is not an existing directory`)
+      console.log(`${cosmetic.red('Error:')} ${cosmetic.cyan(abbreviateDirectory(dir))} is not an existing directory`);
       continue;
     };
     if (options.all) {
@@ -26,7 +27,7 @@ module.exports = async (err, options) => {
 };
 
 let add = async (dir, name, force) => {
-  name = name || basename(dir);
+  name = name || basename(dir).toLowerCase();
   if (name.includes('/') || name.startsWith('.')) return console.log(`${cosmetic.red('Error:')} Shortcut name cannot include ${cosmetic.cyan('.')} or ${cosmetic.cyan('/')}`);
   if (name === 'add' || name === 'clean' || name === 'list' || name === 'remove') return console.log(`${cosmetic.red('Error:')} Shortcut name cannot be ${cosmetic.cyan('add')}, ${cosmetic.cyan('clean')}, ${cosmetic.cyan('list')}, or ${cosmetic.cyan('remove')}`);
   let existing = await Shortcut.fetchOne({ dir });
