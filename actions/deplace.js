@@ -6,7 +6,6 @@ let cosmetic = require('cosmetic'),
 
 module.exports = async (err, options) => {
   if (err) return console.log(`${cosmetic.red(err.name)} ${err.message}`);
-  if (!options.shortcuts) return term.parse([...options._source, 'help']);
   let newWindow = options.new;
   for (let string of options.shortcuts) {
     let shortcut = await Shortcut.fetchOne({ name: string.toLowerCase() });
