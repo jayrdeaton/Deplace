@@ -9,9 +9,9 @@ module.exports = async (err, options) => {
   if (err) return console.log(`${cosmetic.red(err.name)} ${err.message}`);
   let name;
   let dirs = options.dirs;
-  if (dirs.length === 0) dirs.push('.');
+  if (!dirs || dirs.length === 0) dirs = ['.'];
   for (let dir of dirs) {
-    dir = resolve(dir).toLowerCase();
+    dir = resolve(dir);
     if (!existsSync(dir)) {
       console.log(`${cosmetic.red('Error:')} ${cosmetic.cyan(abbreviateDirectory(dir))} is not an existing directory`);
       continue;
@@ -19,7 +19,7 @@ module.exports = async (err, options) => {
     if (options.all) {
       for (dir of getDirectories(dir)) await add(dir, null, options.force);
     } else {
-      if (options.name && dirs.length === 1) name = options.name.toLowerCase();
+      if (options.name && dirs.length === 1) name = options.name;
       await add(dir, name, options.force);
     };
   };
@@ -27,15 +27,15 @@ module.exports = async (err, options) => {
 };
 
 let add = async (dir, name, force) => {
-  name = name || basename(dir).toLowerCase();
+  name = name || basename(dir);
   if (name.includes('/') || name.startsWith('.')) return console.log(`${cosmetic.red('Error:')} Shortcut name cannot include ${cosmetic.cyan('.')} or ${cosmetic.cyan('/')}`);
   if (name === 'add' || name === 'clean' || name === 'list' || name === 'remove') return console.log(`${cosmetic.red('Error:')} Shortcut name cannot be ${cosmetic.cyan('add')}, ${cosmetic.cyan('clean')}, ${cosmetic.cyan('list')}, or ${cosmetic.cyan('remove')}`);
-  let existing = await Shortcut.fetchOne({ dir });
+  let existing = await Shortcut.fetchOne({ dir: new RegExp(`^${dir}$`, 'i') });
   if (existing) {
     if (!force) return console.log(`${cosmetic.red('Error:')} Shortcut already exists for ${cosmetic.cyan(abbreviateDirectory(dir))} named ${cosmetic.cyan(existing.name)}`);
     await existing.remove();
   };
-  existing = await Shortcut.fetchOne({ name });
+  existing = await Shortcut.fetchOne({ name: new RegExp(`^${name}$`, 'i') });
   if (existing) {
     if (!force) return console.log(`${cosmetic.red('Error:')} Shortcut ${cosmetic.cyan(name)} already added for ${cosmetic.cyan(abbreviateDirectory(existing.dir))}`);
     await existing.remove();

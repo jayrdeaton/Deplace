@@ -7,9 +7,9 @@ let cosmetic = require('cosmetic'),
 module.exports = async (err, options) => {
   if (err) return console.log(`${cosmetic.red(err.name)} ${err.message}`);
   let newWindow = options.new;
-  for (let string of options.shortcuts) {
-    let shortcut = await Shortcut.fetchOne({ name: string.toLowerCase() });
-    if (!shortcut) return console.log(`${cosmetic.red('Error:')} No shortcut found named ${cosmetic.cyan(string)}`);
+  for (let name of options.shortcuts) {
+    let shortcut = await Shortcut.fetchOne({ name: new RegExp(`^${name}$`, 'i') });
+    if (!shortcut) return console.log(`${cosmetic.red('Error:')} No shortcut found named ${cosmetic.cyan(name)}`);
     if (!existsSync(shortcut.dir)) console.log(`${cosmetic.red('Error:')} ${cosmetic.cyan(abbreviateDirectory(shortcut.dir))} does not exist`);
     await changeDirectory(abbreviateDirectory(shortcut.dir), options.new);
     if (!options.new) options.new = true;

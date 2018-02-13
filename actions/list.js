@@ -10,8 +10,8 @@ module.exports = async (err, options) => {
   let dir;
   let shortcuts;
   if (options.dir) {
-    dir = resolve(options.dir).toLowerCase();
-    shortcuts = await Shortcut.fetch().filter({ dir: new RegExp(dir) }).sort({dir: 1});
+    dir = resolve(options.dir);
+    shortcuts = await Shortcut.fetch().filter({ dir: new RegExp(dir, 'i') }).sort({dir: 1});
   } else {
     shortcuts = await Shortcut.fetch().sort({name: 1});
   };
@@ -29,9 +29,9 @@ module.exports = async (err, options) => {
   }
   let table = [];
   for (let shortcut of shortcuts) {
-    let broken = '';
-    if (!existsSync(shortcut.dir)) broken = ' Broken'
-    table.push([shortcut.name, abbreviateDirectory(shortcut.dir), cosmetic.red(broken)]);
+    let line = [shortcut.name, abbreviateDirectory(shortcut.dir)];
+    if (!existsSync(shortcut.dir)) line.push(cosmetic.red('Broken'));
+    table.push(line);
   };
   let padding = {};
   for (let array of table) {
@@ -45,7 +45,7 @@ module.exports = async (err, options) => {
   for (let array of table) {
     let line;
     for (let [index, string] of array.entries()) {
-      if (padding[index] && padding[index] !== string.length) {
+      if (index !== array.length - 1 && padding[index] && padding[index] !== string.length) {
         while (string.length < padding[index]) string += ' ';
       };
       if (line) {
