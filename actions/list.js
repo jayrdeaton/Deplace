@@ -7,13 +7,13 @@ let cosmetic = require('cosmetic'),
 
 module.exports = async (err, options) => {
   if (err) return console.log(`${cosmetic.red(err.name)} ${err.message}`);
-  let query = {_sort: {name: 1}};
-  if (options.dir) query._sort = {dir: 1};
-  let shortcuts = await Shortcut.fetch(query);
   let dir;
+  let shortcuts;
   if (options.dir) {
     dir = resolve(options.dir).toLowerCase();
-    shortcuts = shortcuts.filter(shortcut => shortcut.dir.includes(dir));
+    shortcuts = await Shortcut.fetch().filter({ dir: new RegExp(dir) }).sort({dir: 1});
+  } else {
+    shortcuts = await Shortcut.fetch().sort({name: 1});
   };
   if (shortcuts.length === 0) {
     if (dir) {

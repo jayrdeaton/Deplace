@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "cosmetic": "^1.1.1",
-    "emporium": "^1.5.0",
+    "emporium": "^1.7.0",
     "termkit": "^1.1.0"
   }
 }
