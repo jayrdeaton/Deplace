@@ -20,8 +20,7 @@ let remove = async (variable, all) => {
     if (!fs.existsSync(variable)) return console.log(`${cosmetic.red('Error:')} ${cosmetic.cyan(variable)} is not an existing directory`);
     let dir = path.resolve(variable);
     if (all) {
-      let shortcuts = await Shortcut.fetch();
-      shortcuts = shortcuts.filter(shortcut => shortcut.dir.includes(dir));
+      let shortcuts = await Shortcut.fetch({dir: new RegExp(dir, 'i')});
       if (shortcuts.length === 0) return console.log(`${cosmetic.red('Error:')} No shortcuts found within ${cosmetic.cyan(abbreviateDirectory(dir))}`);
       for (let shortcut of shortcuts) {
         await shortcut.remove();
