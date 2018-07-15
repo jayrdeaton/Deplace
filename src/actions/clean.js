@@ -3,8 +3,7 @@ let cosmetic = require('cosmetic'),
   { Shortcut } = require('../emporium'),
   { abbreviateDirectory } = require('../helpers');
 
-module.exports = async (err, options) => {
-  if (err) return console.log(`${cosmetic.red(err.name)} ${err.message}`);
+module.exports = async (options) => {
   let shortcuts = await Shortcut.get();
   let removed = 0;
   for (let shortcut of shortcuts) {

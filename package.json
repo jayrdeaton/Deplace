@@ -24,7 +24,7 @@
   "dependencies": {
     "cosmetic": "^1.1.1",
     "emporium": "^2.1.9",
-    "termkit": "^1.1.0",
+    "termkit": "^1.4.1",
     "uuid": "^3.3.2"
   }
 }

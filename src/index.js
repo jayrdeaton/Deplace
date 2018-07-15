@@ -1,5 +1,6 @@
 let actions = require('./actions'),
   commands = require('./commands'),
-  helpers = require('./helpers');
-
-module.exports = { actions, commands, helpers };
+  helpers = require('./helpers'),
+  program = require('./program');
+  
+module.exports = { actions, commands, helpers, program };

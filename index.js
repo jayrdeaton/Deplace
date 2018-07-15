@@ -1,7 +1,14 @@
 #!/usr/bin/env node
-let { commands } = require('./src'),
-  { deplace } = commands;
+let { program, helpers } = require('./src'),
+  { printError } = helpers;
 
-if (process.argv.length === 2) process.argv.push('help');
+let run = async(args) => {
+  if (args.length === 2) args.push('help');
+  try {
+    await program.parse(args);
+  } catch(err) {
+    printError(err);
+  };
+};
 
-deplace.parse(process.argv);
+run(process.argv);

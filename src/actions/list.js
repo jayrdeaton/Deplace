@@ -4,8 +4,7 @@ let cosmetic = require('cosmetic'),
   { Shortcut } = require('../emporium'),
   { abbreviateDirectory } = require('../helpers');
 
-module.exports = async (err, options) => {
-  if (err) return console.log(`${cosmetic.red(err.name)} ${err.message}`);
+module.exports = async (options) => {
   let dir;
   let shortcuts;
   if (options.dir) {
