@@ -1,8 +1,7 @@
 let cosmetic = require('cosmetic'),
   { existsSync } = require('fs'),
   { resolve } = require('path'),
-  emporium = require('../emporium'),
-  Shortcut = emporium.models.Shortcut,
+  { Shortcut } = require('../emporium'),
   { abbreviateDirectory } = require('../helpers');
 
 module.exports = async (err, options) => {
@@ -11,9 +10,9 @@ module.exports = async (err, options) => {
   let shortcuts;
   if (options.dir) {
     dir = resolve(options.dir);
-    shortcuts = await Shortcut.fetch().filter({ dir: new RegExp(dir, 'i') }).sort({dir: 1});
+    shortcuts = await Shortcut.get({ filter: { dir: new RegExp(dir, 'i') }, sort: { dir: 1 } });
   } else {
-    shortcuts = await Shortcut.fetch().sort({name: 1});
+    shortcuts = await Shortcut.get({ sort: { name: 1 } });
   };
   if (shortcuts.length === 0) {
     if (dir) {

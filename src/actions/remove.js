@@ -1,8 +1,7 @@
 let cosmetic = require('cosmetic'),
   fs = require('fs'),
   path = require('path'),
-  emporium = require('../emporium'),
-  Shortcut = emporium.models.Shortcut,
+  { Shortcut } = require('../emporium'),
   { abbreviateDirectory } = require('../helpers');
 
 module.exports = async (err, options) => {
@@ -20,24 +19,28 @@ let remove = async (variable, all) => {
     if (!fs.existsSync(variable)) return console.log(`${cosmetic.red('Error:')} ${cosmetic.cyan(variable)} is not an existing directory`);
     let dir = path.resolve(variable);
     if (all) {
-      let shortcuts = await Shortcut.fetch({dir: new RegExp(dir, 'i')});
+      let shortcuts = await Shortcut.get({ filter: { dir: new RegExp(dir, 'i') } });
       if (shortcuts.length === 0) return console.log(`${cosmetic.red('Error:')} No shortcuts found within ${cosmetic.cyan(abbreviateDirectory(dir))}`);
       for (let shortcut of shortcuts) {
-        await shortcut.remove();
+        await shortcut.delete();
         console.log(`${cosmetic.green('Removed:')} Shortcut ${cosmetic.cyan(shortcut.name)} for ${cosmetic.cyan(abbreviateDirectory(shortcut.dir))}`);
       };
       return;
     } else {
-      let shortcut = await Shortcut.fetchOne({ dir: new RegExp(`^${dir}$`, 'i') });
+      let shortcuts = await Shortcut.get({ filter: { dir: new RegExp(`^${dir}$`, 'i') } });
+      let shortcut;
+      if (shortcuts.length > 0) shortcut = shortcuts[0];
       if (!shortcut) return console.log(`${cosmetic.red('Error:')} No shortcut found for ${cosmetic.cyan(abbreviateDirectory(dir))}`);
-      await shortcut.remove();
+      await shortcut.delete();
       return console.log(`${cosmetic.green('Removed:')} Shortcut ${cosmetic.cyan(shortcut.name)} for ${cosmetic.cyan(abbreviateDirectory(shortcut.dir))}`);
     };
   } else {
     let name = variable;
-    let shortcut = await Shortcut.fetchOne({ name: new RegExp(`^${dir}$`, 'i') });
+    let shortcuts = await Shortcut.get({ filter: { name: new RegExp(`^${dir}$`, 'i') } });
+    let shortcut;
+    if (shortcuts.length > 0) shortcut = shortcuts[0];
     if (!shortcut) return console.log(`${cosmetic.red('Error:')} No shortcut found named ${cosmetic.cyan(name)}`);
-    await shortcut.remove();
+    await shortcut.delete();
     return console.log(`${cosmetic.green('Removed:')} Shortcut ${cosmetic.cyan(shortcut.name)} for ${cosmetic.cyan(abbreviateDirectory(shortcut.dir))}`);
   };
 };

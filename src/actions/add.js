@@ -2,8 +2,7 @@ let { basename, resolve } = require('path'),
   { existsSync } = require('fs'),
   cosmetic = require('cosmetic'),
   { abbreviateDirectory, getDirectories } = require('../helpers'),
-  emporium = require('../emporium'),
-  Shortcut = emporium.models.Shortcut;
+  { Shortcut } = require('../emporium');
 
 module.exports = async (err, options) => {
   if (err) return console.log(`${cosmetic.red(err.name)} ${err.message}`);
@@ -30,15 +29,17 @@ let add = async (dir, name, force) => {
   name = name || basename(dir);
   if (name.includes('/') || name.startsWith('.')) return console.log(`${cosmetic.red('Error:')} Shortcut name cannot include ${cosmetic.cyan('.')} or ${cosmetic.cyan('/')}`);
   if (name === 'add' || name === 'clean' || name === 'list' || name === 'remove') return console.log(`${cosmetic.red('Error:')} Shortcut name cannot be ${cosmetic.cyan('add')}, ${cosmetic.cyan('clean')}, ${cosmetic.cyan('list')}, or ${cosmetic.cyan('remove')}`);
-  let existing = await Shortcut.fetchOne({ dir: new RegExp(`^${dir}$`, 'i') });
+  let shortcuts = await Shortcut.get({ filter: { dir: new RegExp(`^${dir}$`, 'i') } });
+  let existing = shortcuts[0];
   if (existing) {
     if (!force) return console.log(`${cosmetic.red('Error:')} Shortcut already exists for ${cosmetic.cyan(abbreviateDirectory(dir))} named ${cosmetic.cyan(existing.name)}`);
-    await existing.remove();
+    await existing.delete();
   };
-  existing = await Shortcut.fetchOne({ name: new RegExp(`^${name}$`, 'i') });
+  shortcuts = await Shortcut.get({ filter: { name: new RegExp(`^${name}$`, 'i') } });
+  existing = shortcuts[0];
   if (existing) {
     if (!force) return console.log(`${cosmetic.red('Error:')} Shortcut ${cosmetic.cyan(name)} already added for ${cosmetic.cyan(abbreviateDirectory(existing.dir))}`);
-    await existing.remove();
+    await existing.delete();
   };
   let shortcut = new Shortcut({name, dir});
   await shortcut.save();

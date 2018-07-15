@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-let deplace = require('./commands').deplace;
+let { commands } = require('./src'),
+  { deplace } = commands;
 
 if (process.argv.length === 2) process.argv.push('help');
 
