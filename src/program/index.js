@@ -1,7 +1,7 @@
 let { command, option } = require('termkit'),
-  { add, clean, deplace, list, remove } = require('../actions');
+  { add, clean, deplace, group, list, remove } = require('../actions');
 
-let program = command('Deplace', '[shortcuts...]')
+let program = command('deplace', '[shortcuts...]')
   .version(process.env.npm_package_version)
   .description('A shortcut tool for your OSX terminal')
   .options([
@@ -17,8 +17,11 @@ let program = command('Deplace', '[shortcuts...]')
         option('n', 'name', '<name>', 'Add shortcut with a specified name')
       ])
       .action(async (options) => await add(options)),
-    command('list', '[dir]')
-      .description('List all shortcuts or those within [dir]')
+    command('list', '[group]')
+      .description('List all shortcuts or those belonging to specified group')
+      .options([
+        option('d', 'dir', '<dir>', 'Filter list to those within dir')
+      ])
       .action(async (options) => await list(options)),
     command('remove', '[vars...]')
       .description('Remove a shortcut with a directory or name')
@@ -28,7 +31,13 @@ let program = command('Deplace', '[shortcuts...]')
       .action(async (options) => await remove(options)),
     command('clean')
       .description('Clean all unlinked shortcuts')
-      .action(async (options) => await clean(options))
+      .action(async (options) => await clean(options)),
+    command('group', '<name>')
+      .description('Group shortcuts')
+      .options([
+        option('r', 'replace', null, 'Replace existing group shortcuts with those supplied')
+      ])
+      .action(async (options) => await group(options))
   ]);
 
 module.exports = program;
