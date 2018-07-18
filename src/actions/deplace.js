@@ -25,8 +25,7 @@ module.exports = async (options) => {
       continue;
     };
     let shortcut = await Shortcut.get({ filter });
-    if (shortcut.length > 0) shortcut = shortcut[0];
-    if (!shortcut) throw new Error(`No shortcut found named ${cosmetic.cyan(name)}`);
+    if (shortcut.length > 0) { shortcut = shortcut[0] } else { throw new Error(`No shortcut found named ${cosmetic.cyan(name)}`) };
     if (!existsSync(shortcut.dir)) {
       printError(new Error(`${cosmetic.cyan(abbreviateDirectory(shortcut.dir))} does not exist`));
       continue;
