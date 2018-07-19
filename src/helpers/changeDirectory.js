@@ -10,7 +10,7 @@ module.exports = (dir, newWindow) => {
       if (component.includes(' ')) dir += '\\"';
       if (index !== components.length - 1) dir += '/';
     };
-    runOsascript(dir, newWindow).then(() => {
+    runOsascript(`cd ${dir}`, newWindow).then(() => {
       resolve();
     }).catch((err) => {
       reject(err);

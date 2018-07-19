@@ -1,7 +1,7 @@
 let cosmetic = require('cosmetic'),
   { existsSync } = require('fs'),
-  { Group_Shortcut, Group, Shortcut } = require('../emporium'),
-  { abbreviateDirectory, changeDirectory, printError } = require('../helpers');
+  { Group_Shortcut, Group, Script, Shortcut } = require('../emporium'),
+  { abbreviateDirectory, changeDirectory, printError, runOsascript } = require('../helpers');
 
 module.exports = async (options) => {
   let { shortcuts } = options;
@@ -20,8 +20,14 @@ module.exports = async (options) => {
           continue;
         };
         await changeDirectory(abbreviateDirectory(shortcut.dir), newWindow);
+        
+        let scripts = await Script.get({ filter: { shortcut: shortcut.uuid } });
+        for (let script of scripts) await runOsascript(script.string);
+
         if (!newWindow) newWindow = true;
       };
+      let scripts = await Script.get({ filter: { group: group.uuid } });
+      for (let script of scripts) await runOsascript(script.string);
       continue;
     };
     let shortcut = await Shortcut.get({ filter });
@@ -31,6 +37,10 @@ module.exports = async (options) => {
       continue;
     };
     await changeDirectory(abbreviateDirectory(shortcut.dir), newWindow);
+
+    let scripts = await Script.get({ filter: { shortcut: shortcut.uuid } });
+    for (let script of scripts) await runOsascript(script.string);
+
     if (!newWindow) newWindow = true;
   };
 };

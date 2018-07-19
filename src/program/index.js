@@ -1,5 +1,5 @@
 let { command, option } = require('termkit'),
-  { add, clean, deplace, group, list, remove } = require('../actions');
+  { add, clean, deplace, group, list, remove, script } = require('../actions');
 
 let program = command('deplace', '[shortcuts...]')
   .version(process.env.npm_package_version)
@@ -17,10 +17,11 @@ let program = command('deplace', '[shortcuts...]')
         option('n', 'name', '<name>', 'Add shortcut with a specified name')
       ])
       .action(async (options) => await add(options)),
-    command('list', '[group]')
+    command('list', '[shortcut]')
       .description('List all shortcuts or those belonging to specified group')
       .options([
-        option('d', 'dir', '<dir>', 'Filter list to those within dir')
+        option('d', 'dir', '<dir>', 'Filter list to those within dir'),
+        option('v', 'verbose', null, 'Show group and shortcut relationships')
       ])
       .action(async (options) => await list(options)),
     command('remove', '[vars...]')
@@ -35,9 +36,15 @@ let program = command('deplace', '[shortcuts...]')
     command('group', '<name>')
       .description('Group shortcuts')
       .options([
-        option('r', 'replace', null, 'Replace existing group shortcuts with those supplied')
+        option('r', 'replace', null, 'Replace existing group shortcuts')
       ])
-      .action(async (options) => await group(options))
+      .action(async (options) => await group(options)),
+    command('script', '[scripts...]')
+      .description('Run command line script after shortcut or group')
+      .options([
+        option('r', 'replace', null, 'Replace existing scripts')
+      ])
+      .action(async (options) => await script(options))
   ]);
 
 module.exports = program;
