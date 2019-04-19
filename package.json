@@ -1,6 +1,6 @@
 {
   "name": "deplace",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Mac terminal shortcut utility",
   "main": "index.js",
   "scripts": {
