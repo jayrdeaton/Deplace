@@ -28,22 +28,10 @@ module.exports = async (options) => {
   return;
 };
 
-let add = async (dir, name, force) => {
+let add = async (dir, name) => {
   name = name || basename(dir);
   if (name.includes('/') || name.startsWith('.')) throw new Error(`Shortcut name cannot include ${cosmetic.cyan('.')} or ${cosmetic.cyan('/')}`);
   if (name === 'add' || name === 'clean' || name === 'list' || name === 'remove') throw new Error(`Shortcut name cannot be ${cosmetic.cyan('add')}, ${cosmetic.cyan('clean')}, ${cosmetic.cyan('list')}, or ${cosmetic.cyan('remove')}`);
-  let shortcuts = await Shortcut.get({ filter: { dir: new RegExp(`^${dir}$`, 'i') } });
-  let existing = shortcuts[0];
-  if (existing) {
-    if (!force) throw new Error(`Shortcut already exists for ${cosmetic.cyan(abbreviateDirectory(dir))} named ${cosmetic.cyan(existing.name)}`);
-    await existing.delete();
-  };
-  shortcuts = await Shortcut.get({ filter: { name: new RegExp(`^${name}$`, 'i') } });
-  existing = shortcuts[0];
-  if (existing) {
-    if (!force) throw new Error(`Shortcut ${cosmetic.cyan(name)} already added for ${cosmetic.cyan(abbreviateDirectory(existing.dir))}`);
-    await existing.delete();
-  };
   let shortcut = new Shortcut({name, dir});
   await shortcut.save();
   return console.log(`${cosmetic.green('Added:')} Shortcut ${cosmetic.cyan(shortcut.name)} for ${cosmetic.cyan(abbreviateDirectory(shortcut.dir))}`);

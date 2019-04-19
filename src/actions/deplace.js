@@ -20,9 +20,12 @@ module.exports = async (options) => {
           continue;
         };
         await changeDirectory(abbreviateDirectory(shortcut.dir), newWindow);
-        
+
         let scripts = await Script.get({ filter: { shortcut: shortcut.uuid } });
-        for (let script of scripts) await runOsascript(script.string);
+        for (let script of scripts) {
+          console.log(script.string, shortcut.name, scripts.length);
+          await runOsascript(script.string);
+        }
 
         if (!newWindow) newWindow = true;
       };

@@ -13,10 +13,15 @@ let program = command('deplace', '[shortcuts...]')
       .description('Add new directories to your known shortcuts')
       .options([
         option('a', 'all', null, 'Add all directories in current or specified directories'),
-        option('f', 'force', null, 'Overwrite any existing shortcuts'),
         option('n', 'name', '<name>', 'Add shortcut with a specified name')
       ])
       .action(async (options) => await add(options)),
+    command('remove', '[vars...]')
+      .description('Remove a shortcut with a directory or name')
+      .options([
+        option('a', 'all', null, 'Remove all stored shortcuts within provided directories')
+      ])
+      .action(async (options) => await remove(options)),
     command('list', '[shortcut]')
       .description('List all shortcuts or those belonging to specified group')
       .options([
@@ -24,16 +29,10 @@ let program = command('deplace', '[shortcuts...]')
         option('v', 'verbose', null, 'Show group and shortcut relationships')
       ])
       .action(async (options) => await list(options)),
-    command('remove', '[vars...]')
-      .description('Remove a shortcut with a directory or name')
-      .options([
-        option('a', 'all', null, 'Remove all stored shortcuts within provided directories')
-      ])
-      .action(async (options) => await remove(options)),
     command('clean')
       .description('Clean all unlinked shortcuts')
       .action(async (options) => await clean(options)),
-    command('group', '<name>')
+    command('group', '<name> [shortcuts...]')
       .description('Group shortcuts')
       .options([
         option('r', 'replace', null, 'Replace existing group shortcuts')
