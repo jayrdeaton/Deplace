@@ -23,9 +23,10 @@
   },
   "dependencies": {
     "cosmetic": "^1.1.1",
-    "emporium": "^2.1.9",
+    "emporium": "^2.7.0",
+    "json-emporium": "0.0.2",
     "string-length": "^2.0.0",
-    "termkit": "^1.4.1",
+    "termkit": "^1.4.5",
     "uuid": "^3.3.2"
   }
 }

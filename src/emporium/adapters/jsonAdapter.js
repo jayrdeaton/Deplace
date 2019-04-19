@@ -1,4 +1,4 @@
-let { JSONAdapter } = require('emporium');
+let { JSONAdapter } = require('json-emporium');
 
 let adapter = new JSONAdapter({
   name: 'Deplace',
