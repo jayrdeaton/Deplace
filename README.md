@@ -1,82 +1,113 @@
 # Deplace
 
-A shortcut command line utility for Mac Terminal
+Save and jump to directory shortcuts in your terminal. Open shortcuts and groups in new windows or tabs, with optional scripts that run automatically on open.
 
-## Getting Started
+Supports macOS, Linux, and Windows.
 
-This is how you start shortcutting through your terminal
+## Installation
 
-### Installing
-
-Add this package globally to your machine
-
-```
+```sh
 npm install -g deplace
 ```
 
-### Using
+## Usage
 
-Add your first deplace shortcut
-
-```
-deplace add
+```sh
+deplace [shortcuts...] [options]
 ```
 
-Or add it with a specified path
+Open a saved shortcut in the current window, or use `-n` to open in a new window.
 
-```
-deplace add ./example
-```
-
-Or add it with a specified path and name
-
-```
-deplace add ./example myname
+```sh
+deplace myproject
+deplace myproject -n
 ```
 
-Now you can navigate there easily
+## Commands
 
-```
-deplace myname
+### `add [dirs...]`
+
+Add one or more directories as shortcuts. Defaults to the current directory.
+
+```sh
+deplace add                        # adds current directory
+deplace add ~/projects/myapp       # adds a specific path
+deplace add -n myapp               # adds with a custom name
+deplace add -a ~/projects          # adds all subdirectories
 ```
 
-View your stored shortcuts
+| Option | Description |
+|--------|-------------|
+| `-a, --all` | Add all subdirectories within the provided path |
+| `-n, --name <name>` | Use a custom name instead of the directory basename |
 
+### `remove [vars...]`
+
+Remove shortcuts by name or directory.
+
+```sh
+deplace remove myapp
+deplace remove ~/projects/myapp -a  # remove all shortcuts within a path
 ```
+
+| Option | Description |
+|--------|-------------|
+| `-a, --all` | Remove all shortcuts within the provided directories |
+
+### `list [shortcut]`
+
+List all shortcuts, or show details for a specific one.
+
+```sh
 deplace list
+deplace list myapp
+deplace list -d ~/projects         # filter to those within a directory
+deplace list -v                    # show group memberships
 ```
 
-You can also narrow your list by providing a parent directory
+| Option | Description |
+|--------|-------------|
+| `-d, --dir <dir>` | Filter to shortcuts within a directory |
+| `-v, --verbose` | Show group and shortcut relationships |
 
-```
-deplace list ./example
-```
+### `clean`
 
-Remove stored shortcuts
+Remove all shortcuts whose directories no longer exist.
 
-```
-deplace remove myname
-deplace remove ./example
-```
-
-Remove all shortcuts that no longer exists
-
-```
+```sh
 deplace clean
 ```
 
-View the usage guide in terminal
+### `group <name> [shortcuts...]`
 
+Assign shortcuts to a named group. Opening a group opens all of its shortcuts.
+
+```sh
+deplace group myteam api frontend worker
+deplace group myteam api -r          # replace existing group members
 ```
-deplace help
+
+| Option | Description |
+|--------|-------------|
+| `-r, --replace` | Replace existing group shortcuts instead of appending |
+
+### `script [scripts...]`
+
+Attach a shell command to a shortcut or group. The script runs automatically when the shortcut or group is opened.
+
+```sh
+deplace myapp script "npm run dev"
+deplace myteam script "git status" -r   # replace existing scripts
 ```
 
-Stay tuned for more
+| Option | Description |
+|--------|-------------|
+| `-r, --replace` | Replace existing scripts instead of appending |
 
-## Authors
+## Data
 
-* **Jay Deaton** - [Github](https://github.com/jayrdeaton)
+Shortcuts, groups, and scripts are stored in a SQLite database at `~/.config/deplace/data.db`.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+ISC
