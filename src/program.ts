@@ -1,7 +1,7 @@
 import type { ParsedOptions } from 'termkit'
 import { Program } from 'termkit'
 
-import { add, clean, deplace, group, list, remove, script } from './actions'
+import { add, clean, deplace, group, init, list, remove, script } from './actions'
 
 const cmd = Program.command
 const opt = Program.option
@@ -12,7 +12,7 @@ const wire = (fn: (o: ParsedOptions) => Promise<void>) => (o: ParsedOptions) => 
 const program = cmd('deplace', '[shortcuts...]')
   .version(process.env.npm_package_version ?? '0.0.0')
   .description('A shortcut tool for your terminal')
-  .options([opt('n', 'new-window', null, 'Open shortcut in a new window')])
+  .options([opt('n', 'new-window', null, 'Open shortcut in a new window'), opt('p', 'print', null, 'Print destination path instead of opening a terminal')])
   .action(wire(deplace))
   .commands([
     cmd('add', '[dirs...]')
@@ -37,7 +37,10 @@ const program = cmd('deplace', '[shortcuts...]')
     cmd('script', '[scripts...]')
       .description('Run a command line script after opening a shortcut or group')
       .options([opt('r', 'replace', null, 'Replace existing scripts')])
-      .action(wire(script))
+      .action(wire(script)),
+    cmd('init', '[shell]')
+      .description('Print shell integration script (zsh, bash, fish, powershell)')
+      .action(wire(init))
   ])
 
 export default program

@@ -9,14 +9,27 @@ import { openTerminal } from '../platform'
 
 interface DeplaceOptions {
   'new-window': boolean
+  print: boolean
   shortcuts: string[]
 }
 
 export default async (options: DeplaceOptions): Promise<void> => {
-  const { shortcuts } = options
+  const { shortcuts, print } = options
   let newWindow = options['new-window']
 
   if (!shortcuts || shortcuts.length === 0) return
+
+  if (print) {
+    if (shortcuts.length > 1) throw new Error('--print only works with a single shortcut')
+    const name = shortcuts[0]
+    const g = groupDb.findByName(name)
+    if (g) throw new Error(`--print does not support groups`)
+    const s = shortcutDb.findByName(name)
+    if (!s) throw new Error(`No shortcut found named ${Color.cyan(name)}`)
+    if (!existsSync(s.dir)) throw new Error(`${Color.cyan(abbreviateDirectory(s.dir))} does not exist`)
+    process.stdout.write(s.dir + '\n')
+    return
+  }
 
   for (const name of shortcuts) {
     const g = groupDb.findByName(name)
