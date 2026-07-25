@@ -38,9 +38,7 @@ const program = cmd('deplace', '[shortcuts...]')
       .description('Run a command line script after opening a shortcut or group')
       .options([opt('r', 'replace', null, 'Replace existing scripts')])
       .action(wire(script)),
-    cmd('init', '[shell]')
-      .description('Print shell integration script (zsh, bash, fish, powershell)')
-      .action(wire(init))
+    cmd('init', '[shell]').description('Print shell integration script (zsh, bash, fish, powershell)').action(wire(init))
   ])
 
 export default program

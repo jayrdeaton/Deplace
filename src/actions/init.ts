@@ -46,7 +46,7 @@ function dp {
     $dest = deplace --print @args
     if ($LASTEXITCODE -eq 0) { Set-Location $dest }
   }
-}`,
+}`
 }
 
 function detect(): Shell | null {
@@ -67,7 +67,10 @@ export default async ({ shell }: InitOptions): Promise<void> => {
   let resolved = (shell as Shell) ?? detect()
 
   if (!resolved) {
-    const result = await select('Select your shell', SHELLS.map((s) => ({ label: s })))
+    const result = await select(
+      'Select your shell',
+      SHELLS.map((s) => ({ label: s }))
+    )
     if (!result) return
     resolved = result.label as Shell
   }
@@ -81,7 +84,7 @@ export default async ({ shell }: InitOptions): Promise<void> => {
       zsh: '~/.zprofile (or ~/.zshrc)',
       bash: '~/.bashrc',
       fish: '~/.config/fish/config.fish',
-      powershell: '~/.profile',
+      powershell: '~/.profile'
     }
     process.stdout.write(`# Add this to your ${rcFiles[resolved]}:\n#   eval "$(deplace init ${resolved})"\n\n`)
   }
