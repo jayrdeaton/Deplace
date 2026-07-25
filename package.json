@@ -52,7 +52,7 @@
     "esbuild": "^0.28.1"
   },
   "dependencies": {
-    "termkit": "^2.4.4"
+    "termkit": "^2.4.7"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
