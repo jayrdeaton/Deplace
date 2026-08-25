@@ -11,6 +11,7 @@ export interface Shortcut {
   id: number
   name: string
   dir: string
+  scan: boolean
 }
 
 export interface Group {
@@ -37,7 +38,8 @@ const SCHEMA = `
   CREATE TABLE IF NOT EXISTS shortcuts (
     id   INTEGER PRIMARY KEY,
     name TEXT NOT NULL UNIQUE COLLATE NOCASE,
-    dir  TEXT NOT NULL
+    dir  TEXT NOT NULL,
+    scan INTEGER NOT NULL DEFAULT 0
   );
 
   CREATE TABLE IF NOT EXISTS groups (
@@ -62,6 +64,12 @@ const SCHEMA = `
 export function initDb(dbPath: string): InstanceType<typeof DatabaseSyncClass> {
   const db = new DatabaseSync(dbPath)
   db.exec(SCHEMA)
+
+  const columns = db.prepare('PRAGMA table_info(shortcuts)').all() as { name: string }[]
+  if (!columns.some((c) => c.name === 'scan')) {
+    db.exec('ALTER TABLE shortcuts ADD COLUMN scan INTEGER NOT NULL DEFAULT 0')
+  }
+
   return db
 }
 
@@ -69,16 +77,29 @@ export function createOps(db: InstanceType<typeof DatabaseSyncClass>) {
   const row = <T>(r: unknown): T => r as T
   const rows = <T>(r: unknown[]): T[] => r as T[]
 
+  interface ShortcutRow {
+    id: number
+    name: string
+    dir: string
+    scan: number
+  }
+  const toShortcut = (r: unknown): Shortcut | undefined => {
+    const sr = r as ShortcutRow | undefined
+    return sr ? { id: sr.id, name: sr.name, dir: sr.dir, scan: !!sr.scan } : undefined
+  }
+  const toShortcuts = (r: unknown[]): Shortcut[] => (r as ShortcutRow[]).map((sr) => ({ id: sr.id, name: sr.name, dir: sr.dir, scan: !!sr.scan }))
+
   return {
     shortcut: {
-      findByName: (name: string): Shortcut | undefined => row<Shortcut>(db.prepare('SELECT * FROM shortcuts WHERE name = ? COLLATE NOCASE').get(name)),
-      findById: (id: number): Shortcut | undefined => row<Shortcut>(db.prepare('SELECT * FROM shortcuts WHERE id = ?').get(id)),
-      findByDir: (dir: string): Shortcut | undefined => row<Shortcut>(db.prepare('SELECT * FROM shortcuts WHERE dir = ? COLLATE NOCASE').get(dir)),
-      findByDirPrefix: (dir: string): Shortcut[] => rows<Shortcut>(db.prepare('SELECT * FROM shortcuts WHERE dir LIKE ? COLLATE NOCASE').all(`${dir}%`)),
-      getAll: (): Shortcut[] => rows<Shortcut>(db.prepare('SELECT * FROM shortcuts ORDER BY name').all()),
-      insert: (name: string, dir: string): Shortcut => {
-        const result = db.prepare('INSERT INTO shortcuts (name, dir) VALUES (?, ?)').run(name, dir)
-        return { id: Number(result.lastInsertRowid), name, dir }
+      findByName: (name: string): Shortcut | undefined => toShortcut(db.prepare('SELECT * FROM shortcuts WHERE name = ? COLLATE NOCASE').get(name)),
+      findById: (id: number): Shortcut | undefined => toShortcut(db.prepare('SELECT * FROM shortcuts WHERE id = ?').get(id)),
+      findByDir: (dir: string): Shortcut | undefined => toShortcut(db.prepare('SELECT * FROM shortcuts WHERE dir = ? COLLATE NOCASE').get(dir)),
+      findByDirPrefix: (dir: string): Shortcut[] => toShortcuts(db.prepare('SELECT * FROM shortcuts WHERE dir LIKE ? COLLATE NOCASE').all(`${dir}%`)),
+      getAll: (): Shortcut[] => toShortcuts(db.prepare('SELECT * FROM shortcuts ORDER BY name').all()),
+      getScanRoots: (): Shortcut[] => toShortcuts(db.prepare('SELECT * FROM shortcuts WHERE scan = 1 ORDER BY name').all()),
+      insert: (name: string, dir: string, scan = false): Shortcut => {
+        const result = db.prepare('INSERT INTO shortcuts (name, dir, scan) VALUES (?, ?, ?)').run(name, dir, scan ? 1 : 0)
+        return { id: Number(result.lastInsertRowid), name, dir, scan }
       },
       delete: (id: number): void => {
         db.prepare('DELETE FROM shortcuts WHERE id = ?').run(id)

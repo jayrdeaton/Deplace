@@ -17,7 +17,7 @@ const program = cmd('deplace', '[shortcuts...]')
   .commands([
     cmd('add', '[dirs...]')
       .description('Add new directories to your known shortcuts')
-      .options([opt('a', 'all', null, 'Add all directories in current or specified directories'), opt('n', 'name', '<name>', 'Add shortcut with a specified name')])
+      .options([opt('a', 'all', null, 'Add all directories in current or specified directories'), opt('n', 'name', '<name>', 'Add shortcut with a specified name'), opt('s', 'scan', null, 'Search this directory for an unmatched shortcut name when none is found')])
       .action(wire(add)),
     cmd('remove', '[vars...]')
       .description('Remove a shortcut with a directory or name')

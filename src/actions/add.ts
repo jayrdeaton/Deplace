@@ -10,6 +10,7 @@ interface AddOptions {
   all: boolean
   dirs: string[]
   name?: string
+  scan: boolean
 }
 
 export default async (options: AddOptions): Promise<void> => {
@@ -34,7 +35,7 @@ export default async (options: AddOptions): Promise<void> => {
     } else {
       if (options.name && dirs.length === 1) name = options.name
       try {
-        addShortcut(dir, name)
+        addShortcut(dir, name, options.scan)
       } catch (err) {
         printError(err as Error)
       }
@@ -42,7 +43,7 @@ export default async (options: AddOptions): Promise<void> => {
   }
 }
 
-function addShortcut(dir: string, name?: string): void {
+function addShortcut(dir: string, name?: string, scan = false): void {
   const shortcutName = name ?? basename(dir)
   if (shortcutName.includes('/') || shortcutName.startsWith('.')) {
     throw new Error(`Shortcut name cannot include ${Color.cyan('.')} or ${Color.cyan('/')}`)
@@ -50,6 +51,7 @@ function addShortcut(dir: string, name?: string): void {
   if (['add', 'clean', 'list', 'remove'].includes(shortcutName)) {
     throw new Error(`Shortcut name cannot be ${Color.cyan('add')}, ${Color.cyan('clean')}, ${Color.cyan('list')}, or ${Color.cyan('remove')}`)
   }
-  const s = shortcutDb.insert(shortcutName, dir)
-  console.log(`${Color.green('Added:')} Shortcut ${Color.cyan(s.name)} for ${Color.cyan(abbreviateDirectory(s.dir))}`)
+  const s = shortcutDb.insert(shortcutName, dir, scan)
+  const suffix = s.scan ? ` ${Color.yellow('(search root)')}` : ''
+  console.log(`${Color.green('Added:')} Shortcut ${Color.cyan(s.name)} for ${Color.cyan(abbreviateDirectory(s.dir))}${suffix}`)
 }

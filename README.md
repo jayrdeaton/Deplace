@@ -23,6 +23,8 @@ deplace myproject
 deplace myproject -n
 ```
 
+Want a shorter command? Add an alias in your shell config, e.g. `alias dp=deplace` in `~/.zshrc`.
+
 ## Commands
 
 ### `add [dirs...]`
@@ -34,12 +36,25 @@ deplace add                        # adds current directory
 deplace add ~/projects/myapp       # adds a specific path
 deplace add -n myapp               # adds with a custom name
 deplace add -a ~/projects          # adds all subdirectories
+deplace add -s ~/projects          # adds as a scan root
 ```
 
 | Option | Description |
 |--------|-------------|
 | `-a, --all` | Add all subdirectories within the provided path |
 | `-n, --name <name>` | Use a custom name instead of the directory basename |
+| `-s, --scan` | Mark as a scan root (see below) |
+
+#### Scan roots
+
+A shortcut added with `-s` is a **scan root**. When `deplace <name>` doesn't match any shortcut, deplace also checks each scan root for a subdirectory named `<name>` and opens it directly if found — no need to `add` every project individually.
+
+```sh
+deplace add -s ~/Developer   # ~/Developer is now a scan root
+deplace myapp                # falls back to ~/Developer/myapp if no shortcut named myapp exists
+```
+
+Scan matches are resolved live from the filesystem and aren't saved as shortcuts, so renamed or deleted project directories never leave stale entries behind.
 
 ### `remove [vars...]`
 

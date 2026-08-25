@@ -1,3 +1,6 @@
+import { mkdtempSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
 
 import { createOps, initDb } from '../db'
@@ -60,6 +63,29 @@ describe('shortcuts', () => {
     ops.shortcut.insert('other', '/tmp/other')
     const results = ops.shortcut.findByDirPrefix('/Users/jay/Developer')
     expect(results).toHaveLength(2)
+  })
+
+  it('defaults scan to false', () => {
+    const { ops } = makeDb()
+    const s = ops.shortcut.insert('proj', '/path')
+    expect(s.scan).toBe(false)
+    expect(ops.shortcut.findByName('proj')!.scan).toBe(false)
+  })
+
+  it('stores and retrieves scan as a boolean', () => {
+    const { ops } = makeDb()
+    const s = ops.shortcut.insert('Developer', '/Users/jay/Developer', true)
+    expect(s.scan).toBe(true)
+    expect(ops.shortcut.findByName('Developer')!.scan).toBe(true)
+  })
+
+  it('getScanRoots returns only scan-flagged shortcuts', () => {
+    const { ops } = makeDb()
+    ops.shortcut.insert('Developer', '/Users/jay/Developer', true)
+    ops.shortcut.insert('proj', '/path', false)
+    const roots = ops.shortcut.getScanRoots()
+    expect(roots).toHaveLength(1)
+    expect(roots[0].name).toBe('Developer')
   })
 })
 
@@ -158,5 +184,24 @@ describe('initDb', () => {
     expect(names).toContain('groups')
     expect(names).toContain('group_shortcuts')
     expect(names).toContain('scripts')
+  })
+
+  it('adds the scan column to a shortcuts table created before it existed', () => {
+    const path = join(mkdtempSync(join(tmpdir(), 'deplace-')), 'data.db')
+    const legacyDb = new DatabaseSync(path)
+    legacyDb.exec(`
+      CREATE TABLE shortcuts (
+        id   INTEGER PRIMARY KEY,
+        name TEXT NOT NULL UNIQUE COLLATE NOCASE,
+        dir  TEXT NOT NULL
+      );
+    `)
+    legacyDb.close()
+
+    const migrated = initDb(path)
+    const ops = createOps(migrated)
+    const s = ops.shortcut.insert('proj', '/path', true)
+    expect(s.scan).toBe(true)
+    expect(ops.shortcut.findByName('proj')!.scan).toBe(true)
   })
 })

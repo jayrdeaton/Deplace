@@ -45,7 +45,8 @@ export default async (options: ListOptions): Promise<void> => {
   if (shortcuts.length > 0) table.push([Color.underline('Shortcuts:')])
   for (const s of shortcuts) {
     const broken = !existsSync(s.dir) ? Color.red('Broken') : ''
-    table.push([Color.cyan(s.name), abbreviateDirectory(s.dir), broken])
+    const scanLabel = s.scan ? Color.yellow('Scan root') : ''
+    table.push([Color.cyan(s.name), abbreviateDirectory(s.dir), scanLabel, broken])
     if (dir || filter || verbose) {
       const gs = groupShortcut.getByShortcutId(s.id)
       if (gs.length > 0) table.push(['', Color.underline('Groups:')])

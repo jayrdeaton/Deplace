@@ -1,16 +1,26 @@
 import { existsSync } from 'node:fs'
 import { homedir } from 'node:os'
+import { basename } from 'node:path'
 
 import { Color } from 'termkit'
 
 import { group as groupDb, groupShortcut, script as scriptDb, shortcut as shortcutDb } from '../db'
-import { abbreviateDirectory, printError } from '../helpers'
+import { abbreviateDirectory, getDirectories, printError } from '../helpers'
 import { openTerminal } from '../platform'
 
 interface DeplaceOptions {
   'new-window': boolean
   print: boolean
   shortcuts: string[]
+}
+
+function findScanMatch(name: string): string | undefined {
+  for (const root of shortcutDb.getScanRoots()) {
+    if (!existsSync(root.dir)) continue
+    const match = getDirectories(root.dir).find((dir) => basename(dir).toLowerCase() === name.toLowerCase())
+    if (match) return match
+  }
+  return undefined
 }
 
 export default async (options: DeplaceOptions): Promise<void> => {
@@ -25,9 +35,10 @@ export default async (options: DeplaceOptions): Promise<void> => {
     const g = groupDb.findByName(name)
     if (g) throw new Error(`--print does not support groups`)
     const s = shortcutDb.findByName(name)
-    if (!s) throw new Error(`No shortcut found named ${Color.cyan(name)}`)
-    if (!existsSync(s.dir)) throw new Error(`${Color.cyan(abbreviateDirectory(s.dir))} does not exist`)
-    process.stdout.write(s.dir + '\n')
+    const dir = s?.dir ?? findScanMatch(name)
+    if (!dir) throw new Error(`No shortcut found named ${Color.cyan(name)}`)
+    if (!existsSync(dir)) throw new Error(`${Color.cyan(abbreviateDirectory(dir))} does not exist`)
+    process.stdout.write(dir + '\n')
     return
   }
 
@@ -53,13 +64,14 @@ export default async (options: DeplaceOptions): Promise<void> => {
     }
 
     const s = shortcutDb.findByName(name)
-    if (!s) throw new Error(`No shortcut found named ${Color.cyan(name)}`)
-    if (!existsSync(s.dir)) {
-      printError(new Error(`${Color.cyan(abbreviateDirectory(s.dir))} does not exist`))
+    const dir = s?.dir ?? findScanMatch(name)
+    if (!dir) throw new Error(`No shortcut found named ${Color.cyan(name)}`)
+    if (!existsSync(dir)) {
+      printError(new Error(`${Color.cyan(abbreviateDirectory(dir))} does not exist`))
       continue
     }
-    const scripts = scriptDb.getByShortcutId(s.id).map((sc) => sc.string)
-    openTerminal(s.dir, newWindow, scripts)
+    const scripts = s ? scriptDb.getByShortcutId(s.id).map((sc) => sc.string) : []
+    openTerminal(dir, newWindow, scripts)
     if (!newWindow) newWindow = true
   }
 }
