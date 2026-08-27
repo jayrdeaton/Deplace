@@ -3,9 +3,9 @@ run-name: CI — ${{ github.head_ref || github.ref_name }}
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
-    branches: [master]
+    branches: [main]
 
 jobs:
   ci:

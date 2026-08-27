@@ -6,8 +6,10 @@ import { add, clean, deplace, group, init, list, remove, script } from './action
 const cmd = Program.command
 const opt = Program.option
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const wire = (fn: (o: ParsedOptions) => Promise<void>) => (o: ParsedOptions) => fn(o as any)
+const wire =
+  <T>(fn: (o: T) => Promise<void>) =>
+  (o: ParsedOptions) =>
+    fn(o as unknown as T)
 
 const program = cmd('deplace', '[shortcuts...]')
   .version(process.env.npm_package_version ?? '0.0.0')
