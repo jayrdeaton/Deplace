@@ -35,7 +35,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "ci": "npm run lint && npm test && npm run typecheck && npm run build",
+    "verify": "npm run lint && npm test && npm run typecheck && npm run build",
     "clean": "rm -rf dist",
     "fix": "eslint --fix",
     "lint": "eslint",
@@ -47,7 +47,7 @@
     "test": "jest",
     "test:watch": "jest --watchAll",
     "typecheck": "tsc --noEmit",
-    "preversion": "npm run ci"
+    "preversion": "npm run verify"
   },
   "prettier": "@infinitetoken/eslint-config/prettier",
   "overrides": {
