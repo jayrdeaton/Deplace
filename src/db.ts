@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import type { DatabaseSync as DatabaseSyncClass } from 'node:sqlite'
 
 // Use a non-static module path to prevent esbuild from stripping the 'node:' prefix,
-// which would produce require('sqlite') — an invalid specifier — in the CJS bundle.
+// which would produce require('sqlite') - an invalid specifier - in the CJS bundle.
 const { DatabaseSync } = require(['node', 'sqlite'].join(':')) as { DatabaseSync: typeof DatabaseSyncClass }
 
 export interface Shortcut {

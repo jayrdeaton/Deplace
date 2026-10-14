@@ -47,7 +47,7 @@ deplace add -s ~/projects          # adds as a scan root
 
 #### Scan roots
 
-A shortcut added with `-s` is a **scan root**. When `deplace <name>` doesn't match any shortcut, deplace also checks each scan root for a subdirectory named `<name>` and opens it directly if found — no need to `add` every project individually.
+A shortcut added with `-s` is a **scan root**. When `deplace <name>` doesn't match any shortcut, deplace also checks each scan root for a subdirectory named `<name>` and opens it directly if found - no need to `add` every project individually.
 
 ```sh
 deplace add -s ~/Developer   # ~/Developer is now a scan root
